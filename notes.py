@@ -2,27 +2,43 @@ import sqlite3
 from contextlib import closing
 
 connection = sqlite3.connect("info.db")
-
 cursor = connection.cursor()
+
 try:
     cursor.execute("CREATE TABLE people (name TEXT, age INTEGER, skills STRING)")
 except Exception as e:
     print(e)
 
 
+def user_is_unique(name):
+    rows = cursor.execute("SELECT name, age, skills FROM people").fetchall()
+
+    for user in rows:
+        # print(user[0])
+        if user[0] == name:
+            return False
+
+    return True
+
+
 def insert_db():
     name = input("Name >>")
-    age = input("Age >>")
-    skills = input("Skills >>")
 
-    if name != "" and age != "" and skills != "":
-        cursor.execute(f"INSERT INTO people VALUES ('{name}', '{age}', '{skills}')")
-        print(name + " has been added to the database!")
-        connection.commit()
+    if user_is_unique(str(name)):
+        age = input("Age >>")
+        skills = input("Skills >>")
+
+        if name != "" and age != "" and skills != "":
+            cursor.execute(f"INSERT INTO people VALUES ('{name}', '{age}', '{skills}')")
+            connection.commit()
+            print(name + " has been added to the database!")
+
+        else:
+            print("One of the fields is empty, please try again.")
+            insert_db()
 
     else:
-        print("One of the fields is empty, please try again.")
-        insert_db()
+        print("Name is already in the database!")
 
 
 def edit_db():
@@ -49,7 +65,7 @@ def get_user_info_db():
     age = rows[0][1]
     skills = rows[0][2]
 
-    print(f"{name}, is {age} years old, and works as a {skills}.")
+    print(f"{name} is {age} years old, and works as a {skills}.")
 
 
 def delete_db():
@@ -59,11 +75,16 @@ def delete_db():
             "DELETE FROM people WHERE name = ?",
             (name,))
         connection.commit()
+        print("User successfully deleted!")
 
 
 def display_db():
     rows = cursor.execute("SELECT name, age, skills FROM people").fetchall()
-    print(rows)
+
+    print("Users: ")
+    for user in rows:
+        print(f"- {user[0]} / {user[1]} / {user[2]}")
+    # print(rows)
 
 
 while True:
