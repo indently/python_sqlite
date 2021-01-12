@@ -1,5 +1,5 @@
 import sqlite3
-from contextlib import closing
+import sys
 
 connection = sqlite3.connect("info.db")
 cursor = connection.cursor()
@@ -14,10 +14,8 @@ def user_is_unique(name):
     rows = cursor.execute("SELECT name, age, skills FROM people").fetchall()
 
     for user in rows:
-        # print(user[0])
         if user[0] == name:
             return False
-
     return True
 
 
@@ -79,25 +77,33 @@ def delete_db():
 
 
 def display_db():
-    rows = cursor.execute("SELECT name, age, skills FROM people").fetchall()
+    rows = cursor.execute("SELECT name, age, skills FROM people ORDER BY name ASC").fetchall()
 
     print("Users: ")
     for user in rows:
         print(f"- {user[0]} / {user[1]} / {user[2]}")
-    # print(rows)
 
 
-while True:
+def exit_db():
+    cursor.close()
+    connection.close()
+    sys.exit()
+
+
+def select_options():
     options = input("""
 -----------------------
-Type '1' to insert to database
-Type '2' to display database 
+Type '0' to exit
+Type '1' to insert a new user
+Type '2' to display users
 Type '3' to delete user 
 Type '4' to edit user 
 Type '5' to get user information
 -----------------------
 >>""")
 
+    if options == "0":
+        exit_db()
     if options == "1":
         insert_db()
     if options == "2":
@@ -108,3 +114,8 @@ Type '5' to get user information
         edit_db()
     if options == "5":
         get_user_info_db()
+
+
+# Infinite loop
+while True:
+    select_options()
