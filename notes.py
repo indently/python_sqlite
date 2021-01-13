@@ -119,3 +119,4 @@ Type '5' to get user information
 # Infinite loop
 while True:
     select_options()
+
